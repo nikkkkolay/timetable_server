@@ -1,0 +1,21 @@
+{
+    "env": {
+        "commonjs": true,
+        "es2021": true
+    },
+    "extends": ["airbnb-base", "plugin:prettier/recommended"],
+    "parserOptions": {
+        "ecmaVersion": "latest"
+    },
+    "rules": {
+        "semi": ["warn", "always"],
+        "quotes": ["warn", "single"],
+        "indent": ["warn", 4],
+        "no-var": "error",
+        "no-console": "warn",
+        "max-len": ["warn", { "code": 300 }],
+        "linebreak-style": ["error", "windows"],
+        "arrow-parens": ["error", "always"],
+        "import/extensions": "never"
+    }
+}
