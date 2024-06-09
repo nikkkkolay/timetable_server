@@ -1,28 +1,31 @@
 import express from 'express';
-import mysql from 'mysql2';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { getCourses, getFaculties, getGroups } from './database.js';
 
 const app = express();
 
-app.listen(8080, () => console.log('Старт сервера'));
-
-const connection = mysql.createConnection({
-    host: process.env.HOST,
-    user: process.env.USER,
-    password: process.env.PASSWORD,
-    database: process.env.DATABASE,
+app.get('/', (req, res) => {
+    res.send('Сервер работает!');
 });
 
-connection.connect((err) => {
-    if (err) throw err;
-    console.log('Есть контакт!');
+app.get('/courses', async (req, res) => {
+    const courses = await getCourses();
+    res.send(courses[0]);
 });
 
-connection.query('SELECT * FROM `groups`', function (error, results, fields) {
-    if (error) throw error;
-    console.log('The solution is: ', results[0]);
+app.get('/faculties', async (req, res) => {
+    const faculties = await getFaculties();
+    res.send(faculties[0]);
 });
 
-connection.end();
+app.get('/groups/fac_id=:fac_id/course_id=:course_id', async (req, res) => {
+    const { fac_id, course_id } = req.params;
+    const groups = await getGroups(fac_id, course_id);
+    res.send(groups[0]);
+});
+
+app.use((err, req, res, next) => {
+    console.log(err.stack);
+    res.status(500).send('Что-то сломалось');
+});
+
+app.listen(8080, () => console.log('Старт сервера!'));
