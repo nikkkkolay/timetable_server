@@ -12,6 +12,10 @@ const connection = mysql
     })
     .promise();
 
+export async function getUpdateDate() {
+    return connection.query('SELECT * FROM ddate');
+}
+
 export async function getCourses() {
     return connection.query('SELECT * FROM courses');
 }
@@ -35,6 +39,13 @@ export async function getSchedule(group_id, start, end) {
     return connection.query(
         'SELECT * FROM schedule WHERE group_id = ? AND pair_date > ? AND pair_date < DATE_ADD(?, INTERVAL 2 DAY)',
         [group_id, start, end],
+    );
+}
+
+export async function getCurrentSchedule(group_id) {
+    return connection.query(
+        'SELECT  * FROM schedule WHERE group_id = ? AND pair_date = CURDATE()+1',
+        [group_id],
     );
 }
 
