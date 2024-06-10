@@ -21,8 +21,31 @@ export async function getFaculties() {
 }
 
 export async function getGroups(fac_id, course_id) {
-    return connection.query('SELECT * FROM `groups` WHERE `fac_id`=? AND `course_id`=?', [
+    return connection.query('SELECT * FROM `groups` WHERE fac_id=? AND course_id=?', [
         fac_id,
         course_id,
     ]);
+}
+
+export async function getAvailableDates(group_id) {
+    return connection.query('SELECT * FROM schedule WHERE group_id=?', [group_id]);
+}
+
+export async function getSchedule(group_id, start, end) {
+    return connection.query(
+        'SELECT * FROM schedule WHERE group_id = ? AND pair_date BETWEEN ? AND ?',
+        [group_id, start, end],
+    );
+}
+
+export async function getLesson(lesson_id) {
+    return connection.query('SELECT * FROM lessons WHERE lesson_id=?', [lesson_id]);
+}
+
+export async function getRoom(room_id) {
+    return connection.query('SELECT * FROM rooms WHERE room_id=?', [room_id]);
+}
+
+export async function getTeacher(teacher_id) {
+    return connection.query('SELECT * FROM teachers WHERE teacher_id=?', [teacher_id]);
 }
