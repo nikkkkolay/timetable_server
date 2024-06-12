@@ -102,7 +102,7 @@ app.get('/groups/:fac_id/:course_id', async (req, res) => {
 
 /**
  * @swagger
- * /schedule-group/{group_id}:
+ * /available-dates/{group_id}:
  *  get:
  *   description: Получить список доступных дат
  *   parameters:
@@ -116,7 +116,7 @@ app.get('/groups/:fac_id/:course_id', async (req, res) => {
  *     '200':
  *       description: Список доступных доступных дат
  */
-app.get('/schedule-group/:group_id', async (req, res) => {
+app.get('/available-dates/:group_id', async (req, res) => {
     const { group_id } = req.params;
     const dates = await getAvailableDates(group_id);
     const availableDates = dates[0].reduce((acc, item) => {
@@ -128,7 +128,7 @@ app.get('/schedule-group/:group_id', async (req, res) => {
 
 /**
  * @swagger
- * /schedule/{group_id}:
+ * /current-schedule/{group_id}:
  *  get:
  *   description: Получить расписание на текущую дату
  *   parameters:
@@ -142,7 +142,7 @@ app.get('/schedule-group/:group_id', async (req, res) => {
  *     '200':
  *       description: Расписание на текущую дату
  */
-app.get('/schedule/:group_id', async (req, res) => {
+app.get('/current-schedule/:group_id', async (req, res) => {
     const { group_id } = req.params;
     const date = await getCurrentSchedule(group_id);
     const timetable = timetableCollector(date[0]);
