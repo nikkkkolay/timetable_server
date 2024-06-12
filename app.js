@@ -75,7 +75,7 @@ app.get('/faculties', async (req, res) => {
 
 /**
  * @swagger
- * /groups/fac_id={fac_id}/course_id={course_id}:
+ * /groups/{fac_id}/{course_id}:
  *  get:
  *   description: Получить список доступных групп
  *   parameters:
@@ -94,7 +94,7 @@ app.get('/faculties', async (req, res) => {
  *     '200':
  *       description: Список доступных групп
  */
-app.get('/groups/fac_id=:fac_id/course_id=:course_id', async (req, res) => {
+app.get('/groups/:fac_id/:course_id', async (req, res) => {
     const { fac_id, course_id } = req.params;
     const groups = await getGroups(fac_id, course_id);
     res.send(groups[0]);
@@ -102,7 +102,7 @@ app.get('/groups/fac_id=:fac_id/course_id=:course_id', async (req, res) => {
 
 /**
  * @swagger
- * /schedule-group={group_id}:
+ * /schedule-group/{group_id}:
  *  get:
  *   description: Получить список доступных дат
  *   parameters:
@@ -116,15 +116,19 @@ app.get('/groups/fac_id=:fac_id/course_id=:course_id', async (req, res) => {
  *     '200':
  *       description: Список доступных доступных дат
  */
-app.get('/schedule-group=:group_id', async (req, res) => {
+app.get('/schedule-group/:group_id', async (req, res) => {
     const { group_id } = req.params;
     const dates = await getAvailableDates(group_id);
-    res.send(dates[0]);
+    const availableDates = dates[0].reduce((acc, item) => {
+        return [...acc, item.pair_date];
+    }, []);
+
+    res.send(availableDates);
 });
 
 /**
  * @swagger
- * /schedule/group_id={group_id}:
+ * /schedule/{group_id}:
  *  get:
  *   description: Получить расписание на текущую дату
  *   parameters:
@@ -138,19 +142,16 @@ app.get('/schedule-group=:group_id', async (req, res) => {
  *     '200':
  *       description: Расписание на текущую дату
  */
-app.get('/schedule/group_id=:group_id', async (req, res) => {
+app.get('/schedule/:group_id', async (req, res) => {
     const { group_id } = req.params;
     const date = await getCurrentSchedule(group_id);
-    if (date[0].length) {
-        timetableCollector(date[0]).then((response) => res.send(response));
-    } else {
-        res.send('Ошибка получения данных расписания');
-    }
+    const timetable = timetableCollector(date[0]);
+    timetable.then((response) => res.send(response));
 });
 
 /**
  * @swagger
- * /schedule/group_id={group_id}/at={start}/to={end}':
+ * /schedule/{group_id}/{start}/{end}:
  *  get:
  *   description: Получить расписание в диапазоне дат
  *   parameters:
@@ -174,19 +175,15 @@ app.get('/schedule/group_id=:group_id', async (req, res) => {
  *     '200':
  *       description: Расписание в диапазоне дат
  */
-app.get('/schedule/group_id=:group_id/at=:start/to=:end/', async (req, res) => {
+app.get('/schedule/:group_id/:start/:end/', async (req, res) => {
     const { group_id, start, end } = req.params;
-
     const schedule = await getSchedule(group_id, start, end);
-    if (schedule[0].length) {
-        timetableCollector(schedule[0]).then((response) => res.send(response));
-    } else {
-        res.send('Ошибка получения данных расписания');
-    }
+    const timetable = timetableCollector(schedule[0]);
+    timetable.then((response) => res.send(response));
 });
 
-const timetableCollector = (params) => {
-    return params.reduce(async (acc, item) => {
+const timetableCollector = async (schedule) => {
+    const timetable = schedule.reduce(async (acc, item) => {
         const resolvedAcc = await acc;
         const lesson = await getLesson(item.lesson_id);
         const room = await getRoom(item.room_id);
@@ -205,6 +202,7 @@ const timetableCollector = (params) => {
             },
         ];
     }, []);
+    return timetable;
 };
 
 app.use((err, req, res, next) => {
