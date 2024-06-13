@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
 
@@ -16,6 +17,8 @@ import {
 } from './database.js';
 
 const app = express();
+app.use(cors());
+
 const swaggerOptions = {
     swaggerDefinition: {
         info: {

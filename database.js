@@ -37,14 +37,14 @@ export async function getAvailableDates(group_id) {
 
 export async function getSchedule(group_id, start, end) {
     return connection.query(
-        'SELECT * FROM schedule WHERE group_id = ? AND pair_date > ? AND pair_date < DATE_ADD(?, INTERVAL 2 DAY)',
+        'SELECT * FROM schedule WHERE group_id = ? AND pair_date BETWEEN ? AND ?',
         [group_id, start, end],
     );
 }
 
 export async function getCurrentSchedule(group_id) {
     return connection.query(
-        'SELECT  * FROM schedule WHERE group_id = ? AND pair_date = CURDATE()+1',
+        'SELECT  * FROM schedule WHERE group_id = ? AND pair_date = CURDATE()',
         [group_id],
     );
 }
