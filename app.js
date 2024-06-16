@@ -188,7 +188,7 @@ app.get('/schedule/:group_id/:start/:end/', async (req, res) => {
 });
 
 const timetableCollector = async (schedule) => {
-    const timetable = schedule.reduce(async (acc, item) => {
+    const timetable = schedule.reduce(async (acc, item, index) => {
         const resolvedAcc = await acc;
         const lesson = await getLesson(item.lesson_id);
         const room = await getRoom(item.room_id);
@@ -200,6 +200,7 @@ const timetableCollector = async (schedule) => {
                 pair: pairCollector(item.pair),
                 lesson: lesson[0][0].lesson,
                 room: room[0][0].room,
+                id: index,
             },
         ];
     }, []);
