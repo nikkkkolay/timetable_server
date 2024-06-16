@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
+import { format } from '@formkit/tempo';
 import { pairCollector } from './helpers.js';
 
 import {
@@ -195,8 +196,7 @@ const timetableCollector = async (schedule) => {
         return [
             ...resolvedAcc,
             {
-                pair_date: item.pair_date,
-                day_of_week: item.day_of_week,
+                pair_date: format(item.pair_date, 'D MMMM (dddd)'),
                 pair: pairCollector(item.pair),
                 lesson: lesson[0][0].lesson,
                 room: room[0][0].room,
