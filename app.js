@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
+import { pairCollector } from './helpers.js';
 
 import {
     getCourses,
@@ -190,18 +191,15 @@ const timetableCollector = async (schedule) => {
         const resolvedAcc = await acc;
         const lesson = await getLesson(item.lesson_id);
         const room = await getRoom(item.room_id);
-        const teacher = await getTeacher(item.teacher_id);
 
         return [
             ...resolvedAcc,
             {
                 pair_date: item.pair_date,
-                pair: item.pair,
                 day_of_week: item.day_of_week,
+                pair: pairCollector(item.pair),
                 lesson: lesson[0][0].lesson,
-                pair_type: item.pair_type,
                 room: room[0][0].room,
-                teacher: teacher[0][0].teacher,
             },
         ];
     }, []);
