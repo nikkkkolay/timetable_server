@@ -11,7 +11,6 @@ import {
     getGroups,
     getAvailableDates,
     getSchedule,
-    getLesson,
     getRoom,
     getTeacher,
     getCurrentSchedule,
