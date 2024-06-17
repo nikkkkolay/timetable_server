@@ -16,6 +16,7 @@ import {
     getCurrentSchedule,
     getUpdateDate,
     getGroup,
+    getDisciplines,
 } from './database.js';
 
 const app = express();
