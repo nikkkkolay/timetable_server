@@ -31,6 +31,10 @@ export async function getGroups(fac_id, course_id) {
     ]);
 }
 
+export async function getGroup(group) {
+    return connection.query('SELECT * FROM `groups` WHERE `group` = ?', [group]);
+}
+
 export async function getAvailableDates(group_id) {
     return connection.query('SELECT * FROM schedule WHERE group_id=?', [group_id]);
 }
@@ -44,7 +48,7 @@ export async function getSchedule(group_id, start, end) {
 
 export async function getCurrentSchedule(group_id) {
     return connection.query(
-        'SELECT  * FROM schedule WHERE group_id = ? AND pair_date = CURDATE()',
+        'SELECT  * FROM schedule WHERE group_id = ? AND pair_date = CURDATE()+1',
         [group_id],
     );
 }

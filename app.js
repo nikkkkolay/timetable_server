@@ -13,9 +13,9 @@ import {
     getSchedule,
     getLesson,
     getRoom,
-    getTeacher,
     getCurrentSchedule,
     getUpdateDate,
+    getGroup,
 } from './database.js';
 
 const app = express();
@@ -103,6 +103,28 @@ app.get('/groups/:fac_id/:course_id', async (req, res) => {
     const { fac_id, course_id } = req.params;
     const groups = await getGroups(fac_id, course_id);
     res.send(groups[0]);
+});
+
+/**
+ * @swagger
+ * /groups/{group}:
+ *  get:
+ *   description: Получить группу по имени
+ *   parameters:
+ *    - in: path
+ *      name: group
+ *      required: true
+ *      type: string
+ *      minimum: 1
+ *      description: имя группы
+ *   responses:
+ *     '200':
+ *       description: Номер группы
+ */
+app.get('/groups/:group', async (req, res) => {
+    const { group } = req.params;
+    const groups = await getGroup(group);
+    res.send(groups);
 });
 
 /**
