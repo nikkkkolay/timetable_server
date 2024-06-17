@@ -13,6 +13,7 @@ import {
     getSchedule,
     getLesson,
     getRoom,
+    getTeacher,
     getCurrentSchedule,
     getUpdateDate,
     getGroup,
@@ -212,16 +213,19 @@ app.get('/schedule/:group_id/:start/:end/', async (req, res) => {
 const timetableCollector = async (schedule) => {
     const timetable = schedule.reduce(async (acc, item, index) => {
         const resolvedAcc = await acc;
-        const lesson = await getLesson(item.lesson_id);
+        const disciplines = await getDisciplines(item.disc_id);
         const room = await getRoom(item.room_id);
+        const teacher = await getTeacher(item.teacher_id);
 
         return [
             ...resolvedAcc,
             {
                 pair_date: format(item.pair_date, 'D MMMM (dddd)'),
                 pair: pairCollector(item.pair),
-                lesson: lesson[0][0].lesson,
+                pair_type: item.pair_type,
+                disciplines: disciplines[0][0].disc,
                 room: room[0][0].room,
+                teacher: teacher[0][0].teacher,
                 id: index,
             },
         ];

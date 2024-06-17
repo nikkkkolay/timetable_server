@@ -57,6 +57,10 @@ export async function getLesson(lesson_id) {
     return connection.query('SELECT * FROM lessons WHERE lesson_id=?', [lesson_id]);
 }
 
+export async function getDisciplines(disc_id) {
+    return connection.query('SELECT * FROM disciplines WHERE disc_id=?', [disc_id]);
+}
+
 export async function getRoom(room_id) {
     return connection.query('SELECT * FROM rooms WHERE room_id=?', [room_id]);
 }
