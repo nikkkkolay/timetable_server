@@ -48,7 +48,7 @@ export async function getSchedule(group_id, start, end) {
 
 export async function getCurrentSchedule(group_id) {
     return connection.query(
-        'SELECT  * FROM schedule WHERE group_id = ? AND pair_date = CURDATE()+1',
+        'SELECT  * FROM schedule WHERE group_id = ? AND pair_date = CURDATE()',
         [group_id],
     );
 }
