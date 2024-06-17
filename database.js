@@ -31,8 +31,8 @@ export async function getGroups(fac_id, course_id) {
     ]);
 }
 
-export async function getGroup(group) {
-    return connection.query('SELECT * FROM `groups` WHERE `group` = ?', [group]);
+export async function getGroup(group_name) {
+    return connection.query('SELECT * FROM `groups` WHERE `group` = ?', [group_name]);
 }
 
 export async function getAvailableDates(group_id) {

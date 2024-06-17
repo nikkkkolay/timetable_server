@@ -112,7 +112,7 @@ app.get('/groups/:fac_id/:course_id', async (req, res) => {
  *   description: Получить группу по имени
  *   parameters:
  *    - in: path
- *      name: group
+ *      name: group_name
  *      required: true
  *      type: string
  *      minimum: 1
@@ -121,10 +121,10 @@ app.get('/groups/:fac_id/:course_id', async (req, res) => {
  *     '200':
  *       description: Номер группы
  */
-app.get('/groups/:group', async (req, res) => {
-    const { group } = req.params;
-    const groups = await getGroup(group);
-    res.send(groups);
+app.get('/groups/:group_name', async (req, res) => {
+    const { group_name } = req.params;
+    const group = await getGroup(group_name);
+    res.send(group[0][0]);
 });
 
 /**
