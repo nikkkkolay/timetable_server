@@ -147,7 +147,7 @@ app.get('/groups/:group_name', async (req, res) => {
 app.get('/available-dates/:group_id', async (req, res) => {
     const { group_id } = req.params;
     const dates = await getAvailableDates(group_id);
-    res.send([dates[0][0].pair_date, dates[0][dates[0].length - 1].pair_date]);
+    if (dates) res.send([dates[0][0].pair_date, dates[0][dates[0].length - 1].pair_date]);
 });
 
 /**
