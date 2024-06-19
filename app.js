@@ -211,18 +211,22 @@ app.get('/schedule/:group_id/:start/:end/', async (req, res) => {
 });
 
 const timetableCollector = async (schedule) => {
-    const timetable = schedule.reduce(async (acc, item, index) => {
+    const timetable = schedule.reduce(async (acc, item, index, arr) => {
         const resolvedAcc = await acc;
         const disciplines = await getDisciplines(item.disc_id);
         const room = await getRoom(item.room_id);
         const teacher = await getTeacher(item.teacher_id);
 
+        const prev_date = arr[index - 1] ? arr[index - 1].pair_date : '';
+        const pair_first = item.pair_date.toString() !== prev_date.toString();
+
         return [
             ...resolvedAcc,
             {
-                pair_date: format(item.pair_date, 'D MMMM (dddd)'),
                 pair: pairCollector(item.pair),
+                pair_date: format(item.pair_date, 'D MMMM (dddd)'),
                 pair_type: item.pair_type,
+                pair_first: pair_first,
                 disciplines: disciplines[0][0].disc,
                 room: room[0][0].room,
                 teacher: teacher[0][0].teacher,
