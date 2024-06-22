@@ -148,7 +148,7 @@ app.get('/available-dates/:group_id', async (req, res) => {
     const { group_id } = req.params;
     const dates = await getAvailableDates(group_id);
     const availableDates = dates[0].reduce((acc, item) => {
-        return [...acc, item.pair_date];
+        return [...acc, format(item.pair_date, 'YYYY-MM-DD')];
     }, []);
     res.send(availableDates);
 });
