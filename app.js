@@ -15,7 +15,6 @@ import {
     getTeacher,
     getCurrentSchedule,
     getUpdateDate,
-    getGroup,
     getDisciplines,
 } from './database.js';
 
@@ -108,45 +107,23 @@ app.get('/groups/:fac_id/:course_id', async (req, res) => {
 
 /**
  * @swagger
- * /groups/{group}:
- *  get:
- *   description: Получить группу по имени
- *   parameters:
- *    - in: path
- *      name: group_name
- *      required: true
- *      type: string
- *      minimum: 1
- *      description: имя группы
- *   responses:
- *     '200':
- *       description: Номер группы
- */
-app.get('/groups/:group_name', async (req, res) => {
-    const { group_name } = req.params;
-    const group = await getGroup(group_name);
-    res.send(group[0][0]);
-});
-
-/**
- * @swagger
- * /available-dates/{group_id}:
+ * /schedule-dates/{UID}:
  *  get:
  *   description: Получить список доступных дат
  *   parameters:
  *    - in: path
- *      name: group_id
+ *      name: UID
  *      required: true
- *      type: number
+ *      type: string
  *      minimum: 1
- *      description: id группы
+ *      description: UID группы
  *   responses:
  *     '200':
  *       description: Список доступных доступных дат
  */
-app.get('/available-dates/:group_id', async (req, res) => {
-    const { group_id } = req.params;
-    const dates = await getAvailableDates(group_id);
+app.get('/schedule-dates/:UID', async (req, res) => {
+    const { UID } = req.params;
+    const dates = await getAvailableDates(UID);
     if (dates[0][0]) {
         res.send([dates[0][0].pair_date, dates[0][dates[0].length - 1].pair_date]);
     } else {
@@ -156,37 +133,37 @@ app.get('/available-dates/:group_id', async (req, res) => {
 
 /**
  * @swagger
- * /current-schedule/{group_id}:
+ * /current-schedule/{UID}:
  *  get:
  *   description: Получить расписание на текущую дату
  *   parameters:
  *    - in: path
- *      name: group_id
+ *      name: UID
  *      required: true
- *      type: number
+ *      type: string
  *      minimum: 1
- *      description: id группы
+ *      description: UID группы
  *   responses:
  *     '200':
  *       description: Расписание на текущую дату
  */
-app.get('/current-schedule/:group_id', async (req, res) => {
-    const { group_id } = req.params;
-    const date = await getCurrentSchedule(group_id);
-    const timetable = timetableCollector(date[0]);
-    timetable.then((response) => res.send(response));
+app.get('/schedule-current/:UID', async (req, res) => {
+    const { UID } = req.params;
+    const date = await getCurrentSchedule(UID);
+    const schedule = scheduleCollector(date[0]);
+    schedule.then((response) => res.send(response));
 });
 
 /**
  * @swagger
- * /schedule/{group_id}/{start}/{end}:
+ * /schedule/{UID}/{start}/{end}:
  *  get:
  *   description: Получить расписание в диапазоне дат
  *   parameters:
  *    - in: path
- *      name: group_id
+ *      name: UID
  *      required: true
- *      type: number
+ *      type: string
  *      minimum: 1
  *      description: id группы
  *    - in: path
@@ -203,14 +180,14 @@ app.get('/current-schedule/:group_id', async (req, res) => {
  *     '200':
  *       description: Расписание в диапазоне дат
  */
-app.get('/schedule/:group_id/:start/:end/', async (req, res) => {
-    const { group_id, start, end } = req.params;
-    const schedule = await getSchedule(group_id, start, end);
-    const timetable = timetableCollector(schedule[0]);
+app.get('/schedule/:UID/:start/:end/', async (req, res) => {
+    const { UID, start, end } = req.params;
+    const schedule = await getSchedule(UID, start, end);
+    const timetable = scheduleCollector(schedule[0]);
     timetable.then((response) => res.send(response));
 });
 
-const timetableCollector = async (schedule) => {
+const scheduleCollector = async (schedule) => {
     const timetable = schedule.reduce(async (acc, item, index, arr) => {
         const resolvedAcc = await acc;
         const disciplines = await getDisciplines(item.disc_id);

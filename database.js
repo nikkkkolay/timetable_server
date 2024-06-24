@@ -31,30 +31,21 @@ export async function getGroups(fac_id, course_id) {
     ]);
 }
 
-export async function getGroup(group_name) {
-    return connection.query('SELECT * FROM `groups` WHERE `group` = ?', [group_name]);
+export async function getAvailableDates(UID) {
+    return connection.query('SELECT * FROM schedule WHERE UID_g = ?', [UID]);
 }
 
-export async function getAvailableDates(group_id) {
-    return connection.query('SELECT * FROM schedule WHERE group_id=?', [group_id]);
+export async function getCurrentSchedule(UID) {
+    return connection.query('SELECT  * FROM schedule WHERE UID_g = ? AND pair_date = CURDATE()', [
+        UID,
+    ]);
 }
 
-export async function getSchedule(group_id, start, end) {
+export async function getSchedule(UID, start, end) {
     return connection.query(
-        'SELECT * FROM schedule WHERE group_id = ? AND pair_date BETWEEN ? AND ?',
-        [group_id, start, end],
+        'SELECT * FROM schedule WHERE UID_g = ? AND pair_date BETWEEN ? AND ?',
+        [UID, start, end],
     );
-}
-
-export async function getCurrentSchedule(group_id) {
-    return connection.query(
-        'SELECT  * FROM schedule WHERE group_id = ? AND pair_date = CURDATE()',
-        [group_id],
-    );
-}
-
-export async function getLesson(lesson_id) {
-    return connection.query('SELECT * FROM lessons WHERE lesson_id=?', [lesson_id]);
 }
 
 export async function getDisciplines(disc_id) {
