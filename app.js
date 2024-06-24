@@ -133,7 +133,7 @@ app.get('/schedule-dates/:UID', async (req, res) => {
 
 /**
  * @swagger
- * /current-schedule/{UID}:
+ * /schedule-current/{UID}:
  *  get:
  *   description: Получить расписание на текущую дату
  *   parameters:
