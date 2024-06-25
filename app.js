@@ -124,11 +124,10 @@ app.get('/groups/:fac_id/:course_id', async (req, res) => {
 app.get('/schedule-dates/:UID', async (req, res) => {
     const { UID } = req.params;
     const dates = await getAvailableDates(UID);
-    if (dates[0][0]) {
-        res.send([dates[0][0].pair_date, dates[0][dates[0].length - 1].pair_date]);
-    } else {
-        res.send(dates[0]);
-    }
+    const currentDates = dates[0].reduce((acc, schedule) => {
+        return [...acc, schedule.pair_date];
+    }, []);
+    res.send(currentDates);
 });
 
 /**
