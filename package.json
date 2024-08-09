@@ -19,7 +19,6 @@
     },
     "homepage": "https://github.com/nikkkkolay/timetable_server#readme",
     "dependencies": {
-        "@formkit/tempo": "^0.1.1",
         "cors": "^2.8.5",
         "dotenv": "^16.4.5",
         "express": "^4.19.2",

@@ -2,7 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
-import { format } from '@formkit/tempo';
 import { pairCollector } from './helpers.js';
 
 import {
@@ -200,7 +199,7 @@ const scheduleCollector = async (schedule) => {
             ...resolvedAcc,
             {
                 pair: pairCollector(item.pair),
-                pair_date: format(item.pair_date, 'D MMMM (dddd)'),
+                pair_date: item.pair_date,
                 pair_type: item.pair_type,
                 pair_first: pair_first,
                 disciplines: disciplines[0][0].disc,
