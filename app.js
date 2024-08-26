@@ -125,7 +125,7 @@ app.get('/schedule-dates/:UID', async (req, res) => {
     const { UID } = req.params;
     const dates = await getAvailableDates(UID);
     const currentDates = dates[0].reduce((acc, schedule) => {
-        return [...acc, schedule.pair_date];
+        return [...acc, format(schedule.pair_date, 'YYYY-MM-DD')];
     }, []);
     res.send(currentDates);
 });
