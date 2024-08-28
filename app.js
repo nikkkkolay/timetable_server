@@ -153,9 +153,7 @@ app.get('/schedule-dates/:UID', async (req, res) => {
 
     try {
         const dates = await getAvailableDates(UID, UID_mg);
-        const currentDates = dates[0].reduce((acc, schedule) => {
-            return [...acc, format(schedule.pair_date, 'YYYY-MM-DD')];
-        }, []);
+        const currentDates = dates[0].map((schedule) => format(schedule.pair_date, 'YYYY-MM-DD'));
         res.send(currentDates);
     } catch (error) {
         res.status(500).send({ error: 'Ошибка получения доступных дат' });
