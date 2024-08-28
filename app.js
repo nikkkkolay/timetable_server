@@ -262,7 +262,7 @@ export async function scheduleCollector(schedule) {
 
             return {
                 pair: pairCollector(item.pair),
-                pair_date: format(item.pair_date, 'YYYY-MM-DDTHH:mm:ssZ'),
+                pair_date: format(item.pair_date, 'YYYY-MM-DD'),
                 pair_type: item.pair_type,
                 pair_first: pair_first,
                 disciplines: disciplines[0][0].disc,
