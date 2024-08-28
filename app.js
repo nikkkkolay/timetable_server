@@ -134,9 +134,15 @@ app.get('/groups/:fac_id/:course_id', async (req, res) => {
  *    - in: path
  *      name: UID
  *      required: true
- *      type: string
- *      minimum: 1
+ *      schema:
+ *        type: string
  *      description: UID группы
+ *    - in: query
+ *      name: UID_mg
+ *      required: false
+ *      schema:
+ *        type: string
+ *      description:  UID основной группы (необязательный)
  *   responses:
  *     '200':
  *       description: Список доступных дат
@@ -166,13 +172,20 @@ app.get('/schedule-dates/:UID', async (req, res) => {
  *    - in: path
  *      name: UID
  *      required: true
- *      type: string
- *      minimum: 1
+ *      schema:
+ *        type: string
  *      description: UID группы
+ *    - in: query
+ *      name: UID_mg
+ *      required: false
+ *      schema:
+ *        type: string
+ *      description: UID основной группы (необязательный)
  *   responses:
  *     '200':
  *       description: Расписание на текущую дату
  */
+
 app.get('/schedule-current/:UID', async (req, res) => {
     const { UID } = req.params;
     const { UID_mg } = req.query;
@@ -196,23 +209,32 @@ app.get('/schedule-current/:UID', async (req, res) => {
  *    - in: path
  *      name: UID
  *      required: true
- *      type: string
- *      minimum: 1
- *      description: id группы
+ *      schema:
+ *        type: string
+ *      description: UID  группы
  *    - in: path
  *      name: start
  *      required: true
- *      type: string
+ *      schema:
+ *        type: string
  *      description: YYYY-MM-DD
  *    - in: path
  *      name: end
  *      required: true
- *      type: string
+ *      schema:
+ *        type: string
  *      description: YYYY-MM-DD
+ *    - in: query
+ *      name: UID_mg
+ *      required: false
+ *      schema:
+ *        type: string
+ *      description: UID основной группы (необязательный)
  *   responses:
  *     '200':
  *       description: Расписание в диапазоне дат
  */
+
 app.get('/schedule/:start/:end/:UID', async (req, res) => {
     const { start, end, UID } = req.params;
     const { UID_mg } = req.query;
@@ -228,19 +250,19 @@ app.get('/schedule/:start/:end/:UID', async (req, res) => {
 });
 
 // Функция для сбора расписания
-const scheduleCollector = async (schedule) => {
-    const timetable = schedule.reduce(async (acc, item, index, arr) => {
-        const resolvedAcc = await acc;
-        const disciplines = await getDisciplines(item.disc_id);
-        const room = await getRoom(item.room_id);
-        const teacher = await getTeacher(item.teacher_id);
+export async function scheduleCollector(schedule) {
+    const timetable = await Promise.all(
+        schedule.map(async (item, index, arr) => {
+            const [disciplines, room, teacher] = await Promise.all([
+                getDisciplines(item.disc_id),
+                getRoom(item.room_id),
+                getTeacher(item.teacher_id),
+            ]);
 
-        const prev_date = arr[index - 1] ? arr[index - 1].pair_date : '';
-        const pair_first = item.pair_date.toString() !== prev_date.toString();
+            const prev_date = arr[index - 1] ? arr[index - 1].pair_date : '';
+            const pair_first = item.pair_date.toString() !== prev_date.toString();
 
-        return [
-            ...resolvedAcc,
-            {
+            return {
                 pair: pairCollector(item.pair),
                 pair_date: format(item.pair_date, 'YYYY-MM-DDTHH:mm:ssZ'),
                 pair_type: item.pair_type,
@@ -249,11 +271,12 @@ const scheduleCollector = async (schedule) => {
                 room: room[0][0].room,
                 teacher: teacher[0][0].teacher,
                 id: index,
-            },
-        ];
-    }, []);
+            };
+        }),
+    );
+
     return timetable;
-};
+}
 
 // Обработка ошибок
 app.use((err, req, res, next) => {
