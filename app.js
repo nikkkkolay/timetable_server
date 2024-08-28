@@ -46,8 +46,13 @@ app.use('/api', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
  *       description: Новая дата обновления
  */
 app.get('/', async (req, res) => {
-    const update = await getUpdateDate();
-    res.send(update[0]);
+    try {
+        const update = await getUpdateDate();
+        res.send(update[0]);
+    } catch (error) {
+        res.status(500).send({ error: 'Ошибка получения даты обновления' });
+        console.log('Ошибка получения даты обновления', error);
+    }
 });
 
 /**
@@ -60,8 +65,13 @@ app.get('/', async (req, res) => {
  *       description: Список курсов
  */
 app.get('/courses', async (req, res) => {
-    const courses = await getCourses();
-    res.send(courses[0]);
+    try {
+        const courses = await getCourses();
+        res.send(courses[0]);
+    } catch (error) {
+        res.status(500).send({ error: 'Ошибка получения курсов' });
+        console.log('Ошибка получения курсов', error);
+    }
 });
 
 /**
@@ -74,8 +84,13 @@ app.get('/courses', async (req, res) => {
  *       description: Список институтов
  */
 app.get('/faculties', async (req, res) => {
-    const faculties = await getFaculties();
-    res.send(faculties[0]);
+    try {
+        const faculties = await getFaculties();
+        res.send(faculties[0]);
+    } catch (error) {
+        res.status(500).send({ error: 'Ошибка получения факультетов' });
+        console.log('Ошибка получения факультетов', error);
+    }
 });
 
 /**
@@ -101,8 +116,13 @@ app.get('/faculties', async (req, res) => {
  */
 app.get('/groups/:fac_id/:course_id', async (req, res) => {
     const { fac_id, course_id } = req.params;
-    const groups = await getGroups(fac_id, course_id);
-    res.send(groups[0]);
+    try {
+        const groups = await getGroups(fac_id, course_id);
+        res.send(groups[0]);
+    } catch (error) {
+        res.status(500).send({ error: 'Ошибка получения групп' });
+        console.log('Ошибка получения групп', error);
+    }
 });
 
 /**
@@ -119,15 +139,22 @@ app.get('/groups/:fac_id/:course_id', async (req, res) => {
  *      description: UID группы
  *   responses:
  *     '200':
- *       description: Список доступных доступных дат
+ *       description: Список доступных дат
  */
 app.get('/schedule-dates/:UID', async (req, res) => {
     const { UID } = req.params;
-    const dates = await getAvailableDates(UID);
-    const currentDates = dates[0].reduce((acc, schedule) => {
-        return [...acc, format(schedule.pair_date, 'YYYY-MM-DD')];
-    }, []);
-    res.send(currentDates);
+    const { UID_mg } = req.query;
+
+    try {
+        const dates = await getAvailableDates(UID, UID_mg);
+        const currentDates = dates[0].reduce((acc, schedule) => {
+            return [...acc, format(schedule.pair_date, 'YYYY-MM-DD')];
+        }, []);
+        res.send(currentDates);
+    } catch (error) {
+        res.status(500).send({ error: 'Ошибка получения доступных дат' });
+        console.error('Ошибка получения доступных дат:', error);
+    }
 });
 
 /**
@@ -148,14 +175,21 @@ app.get('/schedule-dates/:UID', async (req, res) => {
  */
 app.get('/schedule-current/:UID', async (req, res) => {
     const { UID } = req.params;
-    const date = await getCurrentSchedule(UID);
-    const schedule = scheduleCollector(date[0]);
-    schedule.then((response) => res.send(response));
+    const { UID_mg } = req.query;
+
+    try {
+        const date = await getCurrentSchedule(UID, UID_mg);
+        const schedule = await scheduleCollector(date[0]);
+        res.send(schedule);
+    } catch (error) {
+        res.status(500).send({ error: 'Ошибка получения расписания на текущую дату' });
+        console.log('Ошибка получения расписания на текущую дату', error);
+    }
 });
 
 /**
  * @swagger
- * /schedule/{UID}/{start}/{end}:
+ * /schedule/{start}/{end}/{UID}:
  *  get:
  *   description: Получить расписание в диапазоне дат
  *   parameters:
@@ -179,13 +213,21 @@ app.get('/schedule-current/:UID', async (req, res) => {
  *     '200':
  *       description: Расписание в диапазоне дат
  */
-app.get('/schedule/:UID/:start/:end/', async (req, res) => {
-    const { UID, start, end } = req.params;
-    const schedule = await getSchedule(UID, start, end);
-    const timetable = scheduleCollector(schedule[0]);
-    timetable.then((response) => res.send(response));
+app.get('/schedule/:start/:end/:UID', async (req, res) => {
+    const { start, end, UID } = req.params;
+    const { UID_mg } = req.query;
+
+    try {
+        const schedule = await getSchedule(UID, UID_mg, start, end);
+        const timetable = await scheduleCollector(schedule[0]);
+        res.send(timetable);
+    } catch (error) {
+        res.status(500).send({ error: 'Ошибка получения расписания в диапазоне дат' });
+        console.error('Ошибка получения расписания в диапазоне дат:', error);
+    }
 });
 
+// Функция для сбора расписания
 const scheduleCollector = async (schedule) => {
     const timetable = schedule.reduce(async (acc, item, index, arr) => {
         const resolvedAcc = await acc;
@@ -213,9 +255,10 @@ const scheduleCollector = async (schedule) => {
     return timetable;
 };
 
+// Обработка ошибок
 app.use((err, req, res, next) => {
-    console.log(err.stack);
-    res.status(500).send('Что-то сломалось');
+    console.error(err.stack);
+    res.status(500).send({ error: 'Что-то сломалось' });
 });
 
 app.listen(8080, () => console.log('Старт сервера!'));
